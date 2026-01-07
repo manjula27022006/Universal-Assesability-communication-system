@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Differently Abled Assistive System</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#f4f6fb}
+nav{background:#2c3e50;color:white;display:flex;overflow-x:auto;flex-wrap:wrap}
+nav button{flex:1;padding:12px;border:none;background:none;color:white;font-size:14px;cursor:pointer}
+nav button:hover{background:#34495e}
+.section{display:none;padding:15px}
+.active{display:block}
+.big-btn{width:100%;padding:15px;font-size:18px;margin:8px 0;cursor:pointer}
+input,textarea,select{width:100%;padding:10px;margin:6px 0;font-size:16px}
+.flash{animation:flash 1s infinite}
+@keyframes flash{0%{background:red}50%{background:white}100%{background:red}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN (EXISTING PROJECT INTACT) -->
+<section id="login" class="section active">
+<h2>Login</h2>
+<input placeholder="Username">
+<button class="big-btn" onclick="goLang()">Login</button>
+</section>
+
+<!-- LANGUAGE SELECTION (EXISTING PROJECT INTACT) -->
+<section id="lang" class="section">
+<h2>Select Language</h2>
+<select id="language">
+<option>English</option>
+<option>Tamil</option>
+<option>Hindi</option>
+</select>
+<button class="big-btn" onclick="welcome()">Continue</button>
+</section>
+
+<!-- NAVIGATION BAR (HOSPITAL STYLE, TOP) -->
+<nav id="nav" style="display:none">
+<button onclick="openSec('stt')">Speech→Text</button>
+<button onclick="openSec('tts')">Text→Speech</button>
+<button onclick="openSec('phrase')">Phrase Board</button>
+<button onclick="openSec('emergency')">Emergency</button>
+<button onclick="openSec('govt')">Govt Schemes</button>
+<button onclick="openSec('medicine')">Medicine Help</button>
+<button onclick="openSec('ngo')">NGO Help</button>
+<button onclick="openSec('profile')">Profile</button>
+</nav>
+
+<!-- SPEECH TO TEXT MODULE -->
+<section id="stt" class="section">
+<h3>Speech to Text</h3>
+<button class="big-btn" onclick="startSTT()">Start Listening</button>
+<textarea id="sttOut"></textarea>
+</section>
+
+<!-- TEXT TO SPEECH MODULE -->
+<section id="tts" class="section">
+<h3>Text to Speech</h3>
+<textarea id="ttsText"></textarea>
+<button class="big-btn" onclick="speak()">Speak</button>
+</section>
+
+<!-- PHRASE BOARD -->
+<section id="phrase" class="section">
+<h3>Quick Help</h3>
+<button class="big-btn" onclick="quickSpeak('I need help')">HELP</button>
+<button class="big-btn" onclick="quickSpeak('I need water')">WATER</button>
+<button class="big-btn" onclick="quickSpeak('Call doctor')">DOCTOR</button>
+</section>
+
+<!-- EMERGENCY MODULE -->
+<section id="emergency" class="section">
+<h3>Emergency Alert</h3>
+<button class="big-btn flash" onclick="emergency()">Trigger Emergency</button>
+<p>Redirects to call / WhatsApp (Browser limitation)</p>
+</section>
+
+<!-- GOVERNMENT SCHEMES MODULE -->
+<section id="govt" class="section">
+<h3>Government Schemes</h3>
+<ul>
+<li>Disability Pension – Assistance for monthly income</li>
+<li>Free Bus Pass – Travel for differently-abled</li>
+<li>Education Scholarship – School & college support</li>
+<li>Medical Insurance – Health coverage</li>
+</ul>
+<button class="big-btn" onclick="readSchemes()">Read Aloud</button>
+</section>
+
+<!-- MEDICINE ASSISTANCE MODULE -->
+<section id="medicine" class="section">
+<h3>Medicine Assistance</h3>
+<button class="big-btn" onclick="goSite('https://www.1mg.com')">Order via 1mg</button>
+<button class="big-btn" onclick="goSite('https://pharmeasy.in')">Order via PharmEasy</button>
+</section>
+
+<!-- NGO HELP MODULE -->
+<section id="ngo" class="section">
+<h3>NGO Support</h3>
+<ul>
+<li>National Association for Blind</li>
+<li>Deaf Foundation India</li>
+<li>Disability Rights NGOs</li>
+</ul>
+</section>
+
+<!-- PROFILE / USER INFO MODULE -->
+<section id="profile" class="section">
+<h3>User Profile</h3>
+<p>Disability Type: Deaf / Blind / Speech</p>
+<p>Emergency Contact Saved</p>
+</section>
+
+<script>
+/* ----- NAVIGATION & SECTION CONTROL ----- */
+function hideAll(){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'))}
+function openSec(id){hideAll();document.getElementById(id).classList.add('active')}
+function goLang(){openSec('lang')}
+function welcome(){
+document.getElementById('nav').style.display='flex';
+openSec('stt');
+let lang=document.getElementById('language').value;
+let msg=lang==='Tamil'?'வரவேற்கிறோம். மேலே உள்ள மெனுவில் இருந்து ஒரு விருப்பத்தை தேர்ந்தெடுக்கவும்':'Welcome. Please select a module from the top menu';
+speechSynthesis.speak(new SpeechSynthesisUtterance(msg));
+}
+
+/* ----- SPEECH TO TEXT ----- */
+function startSTT(){
+let rec=new(window.SpeechRecognition||window.webkitSpeechRecognition)();
+rec.lang='en-IN';
+rec.onresult=e=>sttOut.value=e.results[0][0].transcript;
+rec.start();
+}
+
+/* ----- TEXT TO SPEECH ----- */
+function speak(){speechSynthesis.speak(new SpeechSynthesisUtterance(ttsText.value))}
+
+/* ----- QUICK PHRASE BOARD ----- */
+function quickSpeak(t){speechSynthesis.speak(new SpeechSynthesisUtterance(t))}
+
+/* ----- EMERGENCY ALERT ----- */
+function emergency(){
+speechSynthesis.speak(new SpeechSynthesisUtterance("Emergency activated"));
+window.location.href="tel:112";
+}
+
+/* ----- EXTERNAL LINKS ----- */
+function goSite(url){window.open(url,'_blank')}
+
+/* ----- READ GOVT SCHEMES ALOUD ----- */
+function readSchemes(){
+let text="Disability Pension, Free Bus Pass, Education Scholarship, Medical Insurance";
+speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+}
+</script>
+</body>
+</html>
